@@ -1,0 +1,12 @@
+# For Terraform configurations
+
+terraform/*.tfstate
+terraform/*.tfstate.backup
+
+terraform/*.tfvars
+terraform/*.tfvars.json
+
+terraform/*.plan
+
+terraform/.terraform/
+terraform/.terraform.lock.hcl
