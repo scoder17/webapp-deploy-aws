@@ -10,3 +10,7 @@ terraform/*.plan
 
 terraform/.terraform/
 terraform/.terraform.lock.hcl
+
+# For flask-web-app
+
+venv/
