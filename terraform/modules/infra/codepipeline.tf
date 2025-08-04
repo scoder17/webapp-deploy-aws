@@ -21,7 +21,7 @@ resource "aws_codepipeline" "webapp_pipeline" {
       configuration = {
         Owner      = "scoder17"
         Repo       = "webapp-deploy-aws"
-        Branch     = "main"
+        Branch     = "master"
         OAuthToken = var.github_token
       }
     }

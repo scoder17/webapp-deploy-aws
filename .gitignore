@@ -13,4 +13,4 @@ terraform/.terraform.lock.hcl
 
 # For flask-web-app
 
-venv/
+flask_web_app/app/venv/
