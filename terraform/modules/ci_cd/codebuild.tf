@@ -9,10 +9,10 @@ resource "aws_codebuild_project" "app_build" {
   }
 
   environment {
-    compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/standard:6.0"
-    type                        = "LINUX_CONTAINER"
-    privileged_mode             = true
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    image           = "aws/codebuild/standard:6.0"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = true
     environment_variable {
       name  = "AWS_REGION"
       value = var.aws_region
@@ -26,7 +26,7 @@ resource "aws_codebuild_project" "app_build" {
 
   logs_config {
     cloudwatch_logs {
-      group_name = "/aws/codebuild/app-build"
+      group_name  = "/aws/codebuild/app-build"
       stream_name = "app-build-log"
     }
   }

@@ -3,7 +3,7 @@ resource "aws_codepipeline" "webapp_pipeline" {
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = aws_s3_bucket.artifacts.bucket
+    location = var.artifact_bucket_name
     type     = "S3"
   }
 
@@ -49,12 +49,12 @@ resource "aws_codepipeline" "webapp_pipeline" {
     name = "Deploy"
 
     action {
-      name             = "Deploy"
-      category         = "Deploy"
-      owner            = "AWS"
-      provider         = "CodeDeploy"
-      input_artifacts  = ["build_output"]
-      version          = "1"
+      name            = "Deploy"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "CodeDeploy"
+      input_artifacts = ["build_output"]
+      version         = "1"
 
       configuration = {
         ApplicationName     = aws_codedeploy_app.app.name

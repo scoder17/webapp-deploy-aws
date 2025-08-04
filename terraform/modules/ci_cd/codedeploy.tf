@@ -1,5 +1,5 @@
 resource "aws_codedeploy_app" "app" {
-  name = "webapp"
+  name             = "webapp"
   compute_platform = "Server"
 }
 
@@ -9,7 +9,7 @@ resource "aws_codedeploy_deployment_group" "webapp_group" {
   service_role_arn      = aws_iam_role.codedeploy_role.arn
 
   deployment_style {
-    deployment_type = "IN_PLACE"
+    deployment_type   = "IN_PLACE"
     deployment_option = "WITHOUT_TRAFFIC_CONTROL"
   }
 
@@ -23,7 +23,7 @@ resource "aws_codedeploy_deployment_group" "webapp_group" {
 
   load_balancer_info {
     target_group_info {
-      name = aws_lb_target_group.app_tg.name
+      name = var.lb_target_group_name
     }
   }
 

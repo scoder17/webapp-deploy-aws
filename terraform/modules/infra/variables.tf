@@ -37,9 +37,3 @@ variable "max_size" {
 variable "min_size" {
   default = 1
 }
-
-variable "github_token" {
-    description = "GitHub OAuth token for CodePipeline"
-    type = string
-    sensitive = true
-}
