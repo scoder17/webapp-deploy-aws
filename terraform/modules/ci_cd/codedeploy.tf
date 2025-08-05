@@ -17,7 +17,7 @@ resource "aws_codedeploy_deployment_group" "webapp_group" {
     ec2_tag_filter {
       key   = "Name"
       type  = "KEY_AND_VALUE"
-      value = "CodeDeployApp"
+      value = "app-instance"
     }
   }
 
