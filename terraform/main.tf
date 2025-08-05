@@ -8,3 +8,7 @@ module "ci_cd" {
   lb_target_group_name = module.infra.lb_target_group_name
   artifact_bucket_name = module.infra.artifact_bucket_name
 }
+
+module "notification_alerts" {
+  source = "./modules/notification_alerts"
+}
