@@ -11,6 +11,8 @@ terraform/*.plan
 terraform/.terraform/
 terraform/.terraform.lock.hcl
 
+**/lambda.zip
+
 # For flask-web-app
 
 flask_web_app/app/venv/
