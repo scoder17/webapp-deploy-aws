@@ -1,3 +1,8 @@
+data "aws_ssm_parameter" "github_token" {
+  name = "/ci_cd/github_token"
+  with_decryption = true
+}
+
 resource "aws_codepipeline" "webapp_pipeline" {
   name     = "webapp-pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
