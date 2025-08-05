@@ -1,3 +1,8 @@
+data "aws_ssm_parameter" "github_token" {
+  name = "/github/token"
+  with_decryption = true
+}
+
 resource "aws_codepipeline" "webapp_pipeline" {
   name     = "webapp-pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
@@ -22,7 +27,7 @@ resource "aws_codepipeline" "webapp_pipeline" {
         Owner      = "scoder17"
         Repo       = "webapp-deploy-aws"
         Branch     = "master"
-        OAuthToken = var.github_token
+        OAuthToken = data.aws_ssm_parameter.github_token.value
       }
     }
   }

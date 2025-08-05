@@ -2,12 +2,6 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
-variable "github_token" {
-  description = "GitHub OAuth token for CodePipeline"
-  type        = string
-  sensitive   = true
-}
-
 variable "lb_target_group_name" {
   description = "The name of the ALB target group"
   type        = string
