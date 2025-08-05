@@ -52,30 +52,42 @@
 # # Run Python script
 # python3 /root/bootstrap.py
 
+
+
+
+
 #!/bin/bash
 set -e
 
-# Update system and install core packages
-yum update -y
-yum install -y python3 pip ruby wget
+# Log output to help debug
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
-# Install CodeDeploy Agent
-cd /home/ec2-user
+echo "=== Updating OS ==="
+yum update -y
+
+echo "=== Installing core dependencies ==="
+yum install -y python3 pip ruby wget unzip
+
+echo "=== Installing Docker ==="
+amazon-linux-extras install docker -y
+systemctl enable docker
+systemctl start docker
+
+echo "=== Adding ec2-user to docker group ==="
+usermod -aG docker ec2-user
+
+echo "=== Installing boto3 ==="
+pip3 install boto3
+
+echo "=== Installing CodeDeploy agent ==="
+cd ~
 wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
 chmod +x ./install
 ./install auto
-systemctl start codedeploy-agent
 systemctl enable codedeploy-agent
+systemctl start codedeploy-agent
 
-# Install Docker
-amazon-linux-extras install docker -y
-systemctl start docker
-systemctl enable docker
-
-# Install boto3 for Python
-pip3 install boto3
-
-# Write Python bootstrap script to pull and run Docker container
+echo "=== Writing bootstrap.py ==="
 cat <<EOF > /root/bootstrap.py
 import subprocess
 import boto3
@@ -91,9 +103,8 @@ def main():
     metadata = get_instance_metadata()
     region = metadata['region']
     account_id = metadata['accountId']
-    repo = "devops-app-repo"
+    repo = "devops-app-repo"  # CHANGE if needed
 
-    # Authenticate to ECR
     ecr = boto3.client('ecr', region_name=region)
     token = ecr.get_authorization_token()
     password = token['authorizationData'][0]['authorizationToken']
@@ -103,17 +114,17 @@ def main():
 
     image = f"{account_id}.dkr.ecr.{region}.amazonaws.com/{repo}:latest"
     subprocess.run(f"docker pull {image}", shell=True, check=True)
-
-    # Stop and remove any existing container
     subprocess.run("docker stop app || true", shell=True)
     subprocess.run("docker rm app || true", shell=True)
 
-    # Run container on port 80
+    # Run on port 80 for ALB health check
     subprocess.run(f"docker run -d --name app -p 80:80 {image}", shell=True, check=True)
 
 if __name__ == '__main__':
     main()
 EOF
 
-# Run the bootstrap script
+echo "=== Running bootstrap.py ==="
 python3 /root/bootstrap.py
+
+echo "=== User data script completed ==="
