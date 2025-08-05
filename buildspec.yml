@@ -29,13 +29,20 @@ phases:
       - chmod +x scripts/*.py
 
       - echo Installing Terraform...
-      - rm -rf terraform_1.8.5_linux_amd64.zip
       - curl -LO https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip
-      - mkdir -p /tmp/terraform_install
-      - unzip -o terraform_1.8.5_linux_amd64.zip -d /tmp/terraform_install
-      - chmod +x /tmp/terraform_install/terraform
-      - mv /tmp/terraform_install/terraform /usr/local/bin/
+      - unzip -o terraform_1.8.5_linux_amd64.zip -d /tmp
+      - mv /tmp/terraform /usr/local/bin/
       - terraform version
+
+      - echo Fetching Infracost API Key from SSM...
+      - INFRACOST_API_KEY=$(aws ssm get-parameter --name "/infracost/api_key" --with-decryption --query "Parameter.Value" --output text)
+      - export INFRACOST_API_KEY
+      - echo "Infracost API Key fetched successfully"
+
+
+      - echo Installing Infracost...
+      - curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
+      - infracost --version
 
   build:
     commands:
@@ -45,10 +52,14 @@ phases:
       - echo Pushing Docker image to ECR...
       - "docker push $REPOSITORY_URI:$IMAGE_TAG"
 
-      # - echo Running Terraform to provision/update infrastructure...
-      # - cd terraform
-      # - terraform init
-      # - terraform apply -auto-approve
+      - echo Running Terraform...
+      - cd terraform
+      - terraform init
+      - terraform plan -out=tfplan.binary
+      - terraform show -json tfplan.binary > plan.json
+
+      - echo Running Infracost cost estimation...
+      - infracost breakdown --path=plan.json --format table
 
   post_build:
     commands:
@@ -58,3 +69,4 @@ artifacts:
   files:
     - appspec.yml
     - scripts/**/*
+    - terraform/plan.json
