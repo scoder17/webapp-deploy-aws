@@ -45,10 +45,10 @@ phases:
       - echo Pushing Docker image to ECR...
       - "docker push $REPOSITORY_URI:$IMAGE_TAG"
 
-      - echo Running Terraform to provision/update infrastructure...
-      - cd terraform
-      - terraform init
-      - terraform apply -auto-approve
+      # - echo Running Terraform to provision/update infrastructure...
+      # - cd terraform
+      # - terraform init
+      # - terraform apply -auto-approve
 
   post_build:
     commands:
