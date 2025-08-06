@@ -9,7 +9,7 @@ env:
 phases:
   install:
     runtime-versions:
-      python: 3.9
+      python: 3.11
   pre_build:
     commands:
       - set -e
@@ -57,7 +57,7 @@ phases:
       - terraform init
       - terraform plan -out=tfplan.binary
       - terraform show -json tfplan.binary > plan.json
-      - terraform apply -auto-approve tfplan.binary
+      # - terraform apply -auto-approve tfplan.binary
 
       - echo Running Infracost cost estimation...
       - infracost breakdown --path=plan.json --format table
@@ -69,5 +69,6 @@ phases:
 artifacts:
   files:
     - appspec.yml
+    - buildspec-apply.yml
     - scripts/**/*
-    - terraform/plan.json
+    - terraform/**/*

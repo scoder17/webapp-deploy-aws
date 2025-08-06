@@ -33,19 +33,53 @@ resource "aws_codepipeline" "webapp_pipeline" {
   }
 
   stage {
-    name = "Build"
+    name = "Plan"
 
     action {
-      name             = "Build"
+      name             = "TerraformPlan"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
       input_artifacts  = ["source_output"]
-      output_artifacts = ["build_output"]
+      output_artifacts = ["plan_output"]
       version          = "1"
 
       configuration = {
-        ProjectName = aws_codebuild_project.app_build.name
+        ProjectName = aws_codebuild_project.app_build_plan.name
+      }
+    }
+  }
+
+  stage {
+    name = "Approval"
+
+    action {
+      name     = "ManualApproval"
+      category = "Approval"
+      owner    = "AWS"
+      provider = "Manual"
+      version  = "1"
+
+      configuration = {
+        CustomData = "Please review Infracost and Terraform plan before proceeding."
+      }
+    }
+  }
+
+  stage {
+    name = "Apply"
+
+    action {
+      name             = "TerraformApply"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["plan_output"]
+      output_artifacts = ["apply_output"]
+      version          = "1"
+
+      configuration = {
+        ProjectName = aws_codebuild_project.app_build_apply.name
       }
     }
   }
@@ -58,7 +92,7 @@ resource "aws_codepipeline" "webapp_pipeline" {
       category        = "Deploy"
       owner           = "AWS"
       provider        = "CodeDeploy"
-      input_artifacts = ["build_output"]
+      input_artifacts = ["apply_output"]
       version         = "1"
 
       configuration = {

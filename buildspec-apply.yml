@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+  build:
+    commands:
+      - echo Installing Terraform...
+      - curl -LO https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip
+      - unzip -o terraform_1.8.5_linux_amd64.zip -d /tmp
+      - mv /tmp/terraform /usr/local/bin/
+      - terraform version
+
+      - echo Applying Terraform Plan...
+      - cd terraform
+      - terraform init
+      - terraform apply -auto-approve tfplan.binary
+
+artifacts:
+  files:
+    - appspec.yml
+    - scripts/**/*
