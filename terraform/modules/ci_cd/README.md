@@ -7,6 +7,7 @@ It automates building Docker images, running Terraform plans, applying infrastru
 
 | Name   | Version |
 |--------|---------|
+| terraform | >= 1.11.0  |
 |aws     | ~>6.7.0   |
 
 
