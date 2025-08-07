@@ -165,3 +165,22 @@ You can refer to README present in each modules. It describes itself in detail.
 - **Health-check-based updates** using CodeDeploy hooks
 - **Rollback mechanism** on failed deployments
 - **Observability** with CloudWatch logs and alarms
+
+## Screenshots
+
+![Screenshot](screenshots/pipeline.png)  
+The pipeline  
+![Screenshot](screenshots/loginSucceded.png) 
+Login to ECR successful  
+![Screenshot](screenshots/imagePushed.png)  
+Docker image has been pushed to ECR  
+![Screenshot](screenshots/costEstimation.png)  
+Cost Estimation using Infracost after `terraform plan`  
+![Screenshot](screenshots/approval.png)  
+Manual approval for `terraform apply`  
+![Screenshot](screenshots/applyComplete.png)  
+Terrafrom apply completed  
+![Screenshot](screenshots/deployed_ec2_image.png)  
+Docker image is present in the deployed EC2  
+![Screenshot](screenshots/deployed_ec2_curl.png)  
+`curl localhost` returns `Hello from DevOps!`
