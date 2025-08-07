@@ -14,10 +14,6 @@ output "green_asg_name" {
   value = aws_autoscaling_group.app_asg_green.name
 }
 
-output "target_group_name" {
-  value = aws_lb_target_group.app_tg.name
-}
-
 output "listener_arn" {
   value = aws_lb_listener.http.arn
 }
