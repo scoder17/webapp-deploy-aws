@@ -1,5 +1,8 @@
 # Automated WebApp Deployment using Terraform and AWS  CI/CD stack
 
+## Architecture Diagram:
+![Screenshot](screenshots/architecture.png)
+
 ## Project Overview
 
 This project demonstrates a fully automated CI/CD pipeline to provision and deploy a containerized web application using **Terraform** and **AWS native DevOps tools**, including **CodePipeline**, **CodeBuild**, and **CodeDeploy**. 
@@ -88,3 +91,77 @@ To maintain reliability, this project includes a rollback mechanism based on **C
 - **CodeDeploy Failure Handling:**
   - If a deployment fails (e.g., due to failing health checks or container errors), CodeDeploy automatically rolls back to the **previous working revision**.
   - The rollback is triggered by lifecycle hooks in the `appspec.yml` file and health check monitoring from the ALB.
+
+---
+
+# How did I approach this project?
+
+I started with configuring S3, Dynamodb, SSM parameters required for the project after `aws configure`.
+
+Next, I went with setting up Terraform configurations for the infra which will be required for our project, so I created a module named `infra` which provisions base infra required for the project.
+
+Meanwhile, I created a basic flask app serving `Hello from Devops!` with **multi-staged** Dockerfile.
+
+Once the base infrastructure was provisioned successfully, I created one more module named `ci_cd` to provision infrastructure required related to pipelines. I added `buildspec-plan.yml`,`buildspec-apply.yml`, `appsec.yml` and other scripts like `start.py`, `stop.py` and `validate.py` as well.
+
+Once this was done, I created a module `notification_alerts` which uses SNS to send the mails to set mails.
+
+Everything worked after few bug and scripts fixes.
+
+
+### Flask app
+
+It is a simple webapp that serves a static message: "Hello from DevOps!" on **port 80**.
+It is containerized using a multi-stage Dockerfile for a lightweight and efficient deployment. 
+
+### Modules
+You can refer to README present in each modules. It describes itself in detail.
+
+### Scripts
+- ### buildspec-plan.yml
+  - Authenticate with ECR and login using AWS CLI.
+  - Install Terraform and Infracost for infrastructure provisioning and cost estimation.
+  - Build the Docker image for the Flask app and push it to ECR.
+  - Run Terraform commands (`init`, `plan`) to prepare infrastructure.
+  - Generate a cost report using Infracost.
+  - Package build artifacts (`appspec.yml`, Terraform code, and scripts) for deployment via CodePipeline.
+
+- ### buildspec-apply.yml
+
+  - Installs Terraform CLI
+  - Initializes Terraform inside the `terraform/` directory.
+  - Applies the previously saved Terraform plan file `tfplan.binary`.
+  - Includes `appspec.yml` and deployment scripts as build artifacts for CodeDeploy.
+
+- ### appsec.yml
+
+  - Copies source files to `/home/ec2-user/app` on the EC2 instance.
+  - Defines lifecycle hooks to control the deployment flow:
+    - **ApplicationStop**: Runs `scripts/stop.py` to stop any existing app process.
+    - **AfterInstall**: Runs `scripts/start.py` to start the new application.
+    - **ValidateService**: Runs `scripts/validate.py` to check if the app is healthy.
+
+- ### start.py
+  - Fetch the EC2 instance's AWS account ID using the instance metadata service.
+  - Authenticate with Amazon ECR by retrieving and using a login token.
+  - Pull the latest Docker image from your ECR repository.
+  - Run the container in detached mode on port 80, naming the container app.
+
+- ### stop.py
+  - Stop the running Docker container named app, if it exists.
+  - Remove the stopped container to prepare for a fresh deployment.
+
+- ### validate.py
+  - Check if the application is accessible via http://localhost.
+  - Retry up to 5 times with a 5-second delay between attempts.
+  - Consider the app healthy if it returns HTTP status 200.
+  - Exit with a failure if the app does not respond successfully within the retry limit.
+---
+
+## SRE Practices Applied
+
+- **Idempotent infrastructure** with Terraform
+- **Automated deployments** triggered by GitHub or S3
+- **Health-check-based updates** using CodeDeploy hooks
+- **Rollback mechanism** on failed deployments
+- **Observability** with CloudWatch logs and alarms
