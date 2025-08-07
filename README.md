@@ -183,4 +183,6 @@ Terrafrom apply completed
 ![Screenshot](screenshots/deployed_ec2_image.png)  
 Docker image is present in the deployed EC2  
 ![Screenshot](screenshots/deployed_ec2_curl.png)  
-`curl localhost` returns `Hello from DevOps!`
+`curl localhost` returns `Hello from DevOps!`  
+![Screenshot](screenshots/failure_email.png)  
+Pipeline failure mail from AWS  
